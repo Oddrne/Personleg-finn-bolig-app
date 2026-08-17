@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum SwipeDecision {
+  LIKE
+  DISLIKE
+}
+
+enum MatchStatus {
+  PENDING_ANALYSIS
+  ANALYZED
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  FAILED
+  DONE
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String
+  email         String          @unique
+  createdAt     DateTime        @default(now())
+  preference    Preference?
+  swipes        Swipe[]
+  favorites     Favorite[]
+  notifications Notification[]
+  householdsA   Household[]     @relation("HouseholdUserA")
+  householdsB   Household[]     @relation("HouseholdUserB")
+}
+
+model Preference {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  minPrice         Int?
+  maxPrice         Int?
+  areas            String   @default("[]")
+  minBuildYear     Int?
+  maxBuildYear     Int?
+  maxBikeMinutes   Int?
+  maxTransitMin    Int?
+  freeText         String?
+  weightConfigJson String   @default("{}")
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt        DateTime @updatedAt
+}
+
+model Household {
+  id        String  @id @default(cuid())
+  name      String
+  userAId   String
+  userBId   String
+  createdAt DateTime @default(now())
+  userA     User    @relation("HouseholdUserA", fields: [userAId], references: [id])
+  userB     User    @relation("HouseholdUserB", fields: [userBId], references: [id])
+  matches   Match[]
+
+  @@unique([userAId, userBId])
+}
+
+model Listing {
+  id                       String   @id @default(cuid())
+  finnId                   String   @unique
+  url                      String
+  title                    String
+  municipality             String
+  price                    Int
+  buildYear                Int?
+  lat                      Float?
+  lng                      Float?
+  bikeMinutesToVestly      Int?
+  transitMinutesToJattavagen Int?
+  walkMinutesToGrocery     Int?
+  explanation              String?
+  rawJson                  String   @default("{}")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  swipes                   Swipe[]
+  favorites                Favorite[]
+  matches                  Match[]
+  analysis                 Analysis?
+}
+
+model Swipe {
+  id        String        @id @default(cuid())
+  userId    String
+  listingId String
+  decision  SwipeDecision
+  createdAt DateTime      @default(now())
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing   Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+}
+
+model Match {
+  id         String      @id @default(cuid())
+  householdId String
+  listingId  String
+  status     MatchStatus @default(PENDING_ANALYSIS)
+  createdAt  DateTime    @default(now())
+  listing    Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  household  Household   @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, listingId])
+}
+
+model Analysis {
+  id                  String   @id @default(cuid())
+  listingId           String   @unique
+  fairValueEstimate   Int
+  valueScore          Int
+  summary             String
+  cautionPointsJson   String
+  conditionNotesJson  String
+  createdAt           DateTime @default(now())
+  listing             Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Job {
+  id          String    @id @default(cuid())
+  type        String
+  payloadJson String
+  status      JobStatus @default(QUEUED)
+  attempts    Int       @default(0)
+  lastError   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
