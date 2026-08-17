@@ -73,7 +73,7 @@ export function renderDevTestToolHtml(): string {
       if (hasBody && !headers.has('Content-Type')) {
         headers.set('Content-Type', 'application/json');
       }
-        
+
       const response = await fetch(path, {
         ...options,
         headers
@@ -113,8 +113,8 @@ export function renderDevTestToolHtml(): string {
         maxPrice: 7000000,
         areas: ['Time', 'Klepp', 'Hå'],
         minBuildYear: 1980,
-        maxBikeMinutes: 35,
-        maxTransitMin: 50,
+        maxBikeMinutes: 120,
+        maxTransitMin: 90,
         freeText: 'enebolig, rekkehus'
       };
       const a = await api('/users/' + state.userAId + '/preferences', { method: 'PUT', body: JSON.stringify(pref) });
