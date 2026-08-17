@@ -32,7 +32,14 @@ export async function scrapeFinnHomes(fetchFromFinn = true): Promise<ScrapedList
     return fallbackListings();
   }
 
-  const response = await fetch('https://www.finn.no/realestate/homes/search.html?location=1.20001.22011&location=1.20001.22014&location=1.20001.22015');
+  let response: Response;
+  try {
+    response = await fetch('https://www.finn.no/realestate/homes/search.html?location=1.20001.22011&location=1.20001.22014&location=1.20001.22015');
+  } catch (error) {
+    console.warn('FINN fetch failed, using fallback listings.', error);
+    return fallbackListings();
+  }
+  
   if (!response.ok) {
     return fallbackListings();
   }

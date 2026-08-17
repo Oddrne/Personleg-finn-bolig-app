@@ -65,10 +65,15 @@ export function renderDevTestToolHtml(): string {
     };
 
     async function api(path, options = {}) {
-      const hasBody = options.body !== undefined && options.body !== null;
-      const headers = hasBody
-        ? { 'Content-Type': 'application/json', ...(options.headers || {}) }
-        : { ...(options.headers || {}) };
+      const headers = new Headers(options.headers || {});
+      if (!headers.has('Accept')) {
+        headers.set('Accept', 'application/json');
+      }
+      const hasBody = options.body !== undefined;
+      if (hasBody && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+      }
+        
       const response = await fetch(path, {
         ...options,
         headers
