@@ -6,12 +6,17 @@ import { scrapeFinnHomes } from './services/finnScraper.js';
 import { estimateDistances } from './services/distance.js';
 import { enqueueJob } from './services/jobQueue.js';
 import { explanationForListing, listingMatchesPreference } from './services/scoring.js';
+import { renderDevTestToolHtml } from './services/devTestTool.js';
 import { SwipeDecision, MatchStatus } from '@prisma/client';
 
 const cache = new NodeCache({ stdTTL: 120 });
 
 export async function registerRoutes(app: FastifyInstance): Promise<void> {
   app.get('/health', async () => ({ ok: true }));
+  app.get('/dev/test-tool', async (_, reply) => {
+    reply.type('text/html; charset=utf-8');
+    return reply.send(renderDevTestToolHtml());
+  });
 
   app.post('/users', async (request, reply) => {
     const schema = z.object({ name: z.string().min(2), email: z.string().email() });
