@@ -41,7 +41,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
         maxBikeMinutes: z.number().int().optional(),
         maxTransitMin: z.number().int().optional(),
         freeText: z.string().optional(),
-        weights: z.record(z.number()).optional()
+        weights: z.record(z.string(), z.number()).optional()
       })
       .parse(request.body);
 

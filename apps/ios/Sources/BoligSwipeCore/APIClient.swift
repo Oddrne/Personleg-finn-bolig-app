@@ -1,6 +1,10 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
-public struct APIClient: Sendable {
+@MainActor
+public struct APIClient {
     private let baseURL: URL
     private let session: URLSession
 

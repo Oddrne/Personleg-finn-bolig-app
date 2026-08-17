@@ -13,7 +13,8 @@ export async function buildApp() {
 
   app.setErrorHandler((error, _request, reply) => {
     app.log.error(error);
-    reply.code(400).send({ error: error.message });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    reply.code(400).send({ error: message });
   });
 
   await registerRoutes(app);
