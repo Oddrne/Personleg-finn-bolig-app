@@ -6,10 +6,11 @@
   "scripts": {
     "test": "vitest run",
     "build": "tsc -p tsconfig.json",
-    "dev": "tsx watch src/index.ts",
+    "dev": "npm run prisma:push && tsx watch src/index.ts",
     "start": "node dist/index.js",
     "lint": "eslint .",
     "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev --name init",
     "worker": "tsx src/worker.ts"
   },

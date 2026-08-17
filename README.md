@@ -19,10 +19,10 @@ MVP for boligmatch mellom to brukere med swipe-flyt, matching, analyse og avstan
 cd /home/runner/work/Personleg-finn-bolig-app/Personleg-finn-bolig-app/backend
 cp .env.example .env
 npm install
-npx prisma migrate dev --name init
-npm run prisma:generate
 npm run dev
 ```
+
+`npm run dev` kjører no automatisk `prisma db push` før oppstart, slik at nødvendige tabellar blir oppretta i lokal SQLite-db.
 
 Start worker i eget vindu:
 
